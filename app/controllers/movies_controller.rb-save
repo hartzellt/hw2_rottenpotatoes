@@ -8,25 +8,19 @@ class MoviesController < ApplicationController
 
   def index
     @cur_path = "#{request.path}"
-    @rats = ( @rats.nil? ? {} : "#{request.query_parameters['ratings']}")
-    puts "query #{request.query_parameters}"
-    puts "params #{params}"
     @title_header = "#{@cur_path}" == "/movies.title_header"
     @release_date_header = "#{@cur_path}" == "/movies.release_date_header"
-#    @rats = (params[:ratings].nil? ? {} : params[:ratings])
     if !params[:ratings].nil?
-      @movies = Movie.find_all_by_rating(params[:ratings].keys)
-      @movies = ( @title_header ? Movie.order("title").find_all_by_rating(params[:ratings].keys) : @movies)
-      @movies = ( @release_date_header ? Movie.order("release_date").find_all_by_rating(params[:ratings].keys) : @movies)
-      @rats = (params[:ratings].nil? ? "#{request.query_parameters['ratings']}" : params[:ratings])
-      @rats = params[:ratings]
+      @movies = Movie.all(:conditions => { :rating => params[:ratings].keys } )
     else
       @movies = Movie.all
-      @movies = ( @title_header ? Movie.order("title") : @movies)
-      @movies = ( @release_date_header ? Movie.order("release_date") : @movies)
     end
-    puts @rats
+    @movies = ( @title_header ? Movie.order("title") : @movies)
+    @movies = ( @release_date_header ? Movie.order("release_date") : @movies)
     @all_ratings = Movie.all_ratings
+    @rat_chk = Hash.new(nil)
+    @rats = params[:ratings]
+    puts "#{@movies.order}"
   end
   def new
     # default: render 'new' template
